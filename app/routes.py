@@ -2,7 +2,7 @@ from app import app
 from flask import render_template, redirect, url_for, request
 import json
 import os
-from app.models.product import product
+from app.models.product import Product
 
 @app.route('/')
 def index():
@@ -16,8 +16,11 @@ def extract():
         product.extract_name()
         if product.product_name:
             product.extract_opinions().calculate_stats().draw_charts()
+            product.export_opinions()
+            product.export_product()
         else:
-            pass
+            error = "Nie powiodło się"
+            return render_template(extract.html.jinja, error=error)
 
         if not os.path.exists("app/opinions"):
             os.makedirs("app/opinions")
@@ -37,5 +40,8 @@ def author():
 
 @app.route('/product/<product_id>')
 def product(product_id):
-    
-    return render_template("product.html.jinja", product_id=product_id, stats=stats, opinions=opinions)
+    product = Product(product_id)
+    product.import_product()
+    stats = product.stats_to_dict()
+    opinions = product.opinions_to_df()
+    return render_template("product.html.jinja", product_id=product_id)
