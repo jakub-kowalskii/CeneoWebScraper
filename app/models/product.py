@@ -80,15 +80,23 @@ class Product():
             return self
 
     def __str__(self) -> str:
-        pass
+        return f'product id: {self.product_id} <br> product name: {self.procuct_name} <br> opinions <br>' + '<br>'.join(str(opinion) for opinion in self.opinions)
+
     def __repr__(self) -> str:
-        pass
+        return f"Product(product_id={self.product_id}, product_name={product_name}, opinions+["+",".join(opinion.__repr__() for opinion in self.opinions) +"])"
+
     def to_dict(self) -> dict:
-        pass
+        return{
+            "product_id": self.product_id,
+            "product_name": self.product_name,
+            "opinions": [opinion.to_dict() for opinion in self.opinions]
+        }
 
     def export_opinions(self):
         if not os.path.exists("app/opinions"):
             os.makedirs("app/opinions")
+        with open(f"app/opinions/{self.product_id}.json", "w", encoding="UTF-8") as file:
+            json.dump([opinion.to_dict for opinion in self.opinions()], file, indent=4, ensure_ascii=False)
         
     def export_product(self):
         pass
